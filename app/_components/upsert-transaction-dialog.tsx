@@ -42,6 +42,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addTransaction } from "../_actions/upsert-transaction";
+import { useState, useEffect } from "react";
 
 interface UpsertTransactionDialogProps {
   isOpen: boolean;
@@ -83,6 +84,12 @@ const UpsertTransactionDialog = ({
   defaultValues,
   transactionId,
 }: UpsertTransactionDialogProps) => {
+  const [dialogOpen, setDialogOpen] = useState(isOpen);
+
+  useEffect(() => {
+    setDialogOpen(isOpen);
+  }, [isOpen]);
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues ?? {
@@ -94,6 +101,12 @@ const UpsertTransactionDialog = ({
       type: TransactionType.DEPOSIT,
     },
   });
+
+  useEffect(() => {
+    if (transactionId) {
+      form.reset(defaultValues);
+    }
+  }, [defaultValues, transactionId, form]);
 
   const onSubmit = async (data: FormSchema) => {
     try {
@@ -109,8 +122,9 @@ const UpsertTransactionDialog = ({
 
   return (
     <Dialog
-      open={isOpen}
+      open={dialogOpen}
       onOpenChange={(open) => {
+        setDialogOpen(open);
         setIsOpen(open);
         if (!open) {
           form.reset();
