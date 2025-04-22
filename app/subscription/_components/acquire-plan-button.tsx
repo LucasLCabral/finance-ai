@@ -1,4 +1,4 @@
-"use  client";
+"use client";
 
 import { Button } from "@/app/_components/ui/button";
 import { createStripeCheckout } from "../_actions/create-stripe-checkout";

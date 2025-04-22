@@ -8,11 +8,10 @@ export const createStripeCheckout = async () => {
   if (!userId) {
     throw new Error("User not authenticated");
   }
-  if (!process.env.STRIPE_SECRET_KEY_ID) {
+  if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Stripe secret key not set");
   }
-
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_ID, {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2025-03-31.basil",
   });
   const session = await stripe.checkout.sessions.create({
