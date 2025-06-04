@@ -21,44 +21,45 @@ export const POST = async (request: Request) => {
   );
 
   switch (event.type) {
-    case "invoice.paid":
-      // Atualizar o usuário com novo plano
-      const invoice = event.data.object as Stripe.Invoice;
-      const customer = invoice.customer as string;
+    case "invoice.payment_succeeded": {
+      const invoicePaymentSucceeded = event.data.object;
+      const subscription_details =
+        invoicePaymentSucceeded.parent!.subscription_details;
+      const customer = invoicePaymentSucceeded.customer;
+      const subscription = subscription_details!.subscription;
+      const clerkUserId = subscription_details!.metadata!.clerk_user_id;
 
-      const lineItem = invoice?.lines?.data?.[0];
-
-      interface SubscriptionDetails {
-        subscription: string;
-        metadata?: {
-          clerk_user_id?: string;
-        };
-      }
-
-      interface CustomParent {
-        subscription_details?: SubscriptionDetails;
-      }
-
-      const parent = lineItem?.parent as unknown as CustomParent;
-
-      const subscriptionId = parent?.subscription_details?.subscription;
-      const clerkUserId = parent?.subscription_details?.metadata?.clerk_user_id;
-
-      if (!clerkUserId || !subscriptionId) {
-        console.error("Metadata ou subscriptionId não encontrados");
+      if (!clerkUserId) {
         return NextResponse.error();
       }
-      const client = await clerkClient();
-      await client.users.updateUser(clerkUserId, {
+      (await clerkClient()).users.updateUser(clerkUserId, {
         privateMetadata: {
           stripeCustomerId: customer,
-          stripeSubscriptionId: subscriptionId,
+          stripeSubscriptionId: subscription,
         },
         publicMetadata: {
           subscriptionPlan: "premium",
         },
       });
       break;
+    }
+    case "customer.subscription.deleted": {
+      const subscriptionDeleted = event.data.object;
+      const clerkUserId = subscriptionDeleted.metadata.clerk_user_id;
+      if (!clerkUserId) {
+        return NextResponse.error();
+      }
+      (await clerkClient()).users.updateUser(clerkUserId, {
+        privateMetadata: {
+          stripeSubscriptionId: null,
+          stripeCustomerId: null,
+        },
+        publicMetadata: {
+          subscriptionPlan: null,
+        },
+      });
+      break;
+    }
   }
   return NextResponse.json({ received: true }, { status: 200 });
 };
