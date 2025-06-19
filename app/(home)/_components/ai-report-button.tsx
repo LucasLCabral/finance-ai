@@ -12,6 +12,7 @@ import {
   DialogClose,
 } from "@/app/_components/ui/dialog";
 import { BotIcon, Loader2Icon } from "lucide-react";
+import Link from "next/link";
 import { generateAIReport } from "../_actions/generate-ai-report";
 import { useState } from "react";
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
@@ -19,9 +20,10 @@ import Markdown from "react-markdown";
 
 interface AIReportButtonProps {
   month: string;
+  hasPremiumPlan?: boolean;
 }
 
-const AIReportButton = ({ month }: AIReportButtonProps) => {
+const AIReportButton = ({ month, hasPremiumPlan }: AIReportButtonProps) => {
   const [report, setReport] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,28 +47,49 @@ const AIReportButton = ({ month }: AIReportButtonProps) => {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Relatorio IA</DialogTitle>
-          <DialogDescription>
-            Use inteligência artificial para gerar relatórios personalizados
-            baseado nas suas transações.
-          </DialogDescription>
-        </DialogHeader>
-        <ScrollArea className="prose max-h-[450px] text-white prose-h2:text-white prose-h3:text-white prose-h4:text-white prose-strong:text-white">
-          <Markdown>{report}</Markdown>
-        </ScrollArea>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="ghost">Cancelar</Button>
-          </DialogClose>
-          <Button onClick={handleGenerateReportsClick} disabled={isLoading}>
-            {isLoading ? (
-              <Loader2Icon className="animate-spin" />
-            ) : (
-              "Gerar Relatorio"
-            )}
-          </Button>
-        </DialogFooter>
+        {hasPremiumPlan ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Relatorio IA</DialogTitle>
+              <DialogDescription>
+                Use inteligência artificial para gerar relatórios personalizados
+                baseado nas suas transações.
+              </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="prose max-h-[450px] text-white prose-h2:text-white prose-h3:text-white prose-h4:text-white prose-strong:text-white">
+              <Markdown>{report}</Markdown>
+            </ScrollArea>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="ghost">Cancelar</Button>
+              </DialogClose>
+              <Button onClick={handleGenerateReportsClick} disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  "Gerar Relatorio"
+                )}
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Relatorio IA</DialogTitle>
+              <DialogDescription>
+                Você precisa de um plano premium para gerar relatórios com IA.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="ghost">Cancelar</Button>
+              </DialogClose>
+              <Button asChild>
+                <Link href="/subscription">Adquirir Plano Premium</Link>
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
