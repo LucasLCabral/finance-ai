@@ -27,6 +27,7 @@ export const generateAIReport = async ({ month }: GenerateAIReportSchema) => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
     return DUMMY_REPORT; // Fallback para o relatório de exemplo caso nao tenha a chave da genAPI
   }
+
   const genAI = new GoogleGenAI({
     apiKey: process.env.GOOGLE_API_KEY,
   });
@@ -41,16 +42,15 @@ export const generateAIReport = async ({ month }: GenerateAIReportSchema) => {
   });
   console.log("Transactions:", transactions);
 
-  const content = `Você é um especialista em finanças pessoais e investimentos. Gere um relatório detalhado com insights sobre as transações financeiras do usuário. Dê dicas de como ele pode melhorar sua vida financeira.
-
-As transações estão divididas por ponto e vírgula. A estrutura de cada uma é {DATA}-{TIPO}-{VALOR}-{CATEGORIA}. São elas:
-${transactions
-  .map(
-    (transaction) =>
-      `${transaction.date.toLocaleDateString("pt-BR")}-R$${transaction.amount}-${transaction.type}-${transaction.category}`,
-  )
-  .join(";")}
-`;
+  const content = `Você é um especialista em finanças pessoais e investimentos. Gere um relatório detalhado com   insights sobre as transações financeiras do usuário. Dê dicas de como ele pode melhorar sua vida financeira.
+  As transações estão divididas por ponto e vírgula. A estrutura de cada uma é {DATA}-{TIPO}-{VALOR}-{CATEGORIA}. São elas:
+    ${transactions
+      .map(
+        (transaction) =>
+          `${transaction.date.toLocaleDateString("pt-BR")}-R$${transaction.amount}-${transaction.type}-${transaction.category}`,
+      )
+      .join(";")}
+    `;
 
   const response = await genAI.models.generateContent({
     model: "gemini-1.5-flash",
