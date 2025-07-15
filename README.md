@@ -57,7 +57,17 @@ npm run dev
 
 Set up your `.env` with the required secrets (see `.env.example`).
 
-## 📄 License
+## � Screenshots
+
+### Dashboard
+
+![Dashboard](screenshots/finance-ai-dashboard.png)
+
+### Login Page
+
+![Login Page](screenshots/finance-ai-login-page.png)
+
+## �📄 License
 
 MIT
 
